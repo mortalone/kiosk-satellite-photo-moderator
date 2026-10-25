@@ -1,5 +1,11 @@
 # Release Notes
 
+## 0.1.1 - Event Subscription Fix
+
+- **Fix "Unknown KS event"**: Updated screensaver event subscription from legacy `screensaver` to standard Kiosk Satellite events `screensaver.state` and `screensaver.view`.
+- **Event Dispatch Handling**: Added prefix matching for `ks.screensaver.state` and `screensaver.state`.
+- **Clean Unsubscribe**: Added unsubscription of events on plugin stop.
+
 ## 0.1.0 - Initial Release
 
 - **Floating Moderation Button**: Renders a discrete, customizable icon (`🛡️`, `⚠️`, `🚩`, `👁️`) on top of the screensaver.

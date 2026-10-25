@@ -95,8 +95,8 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
         }
 
         if (this.host != null) {
-            this.host.subscribe("screensaver");
-            this.host.subscribe("switch.active");
+            this.host.subscribe("screensaver.state");
+            this.host.subscribe("screensaver.view");
 
             // Query initial screensaver state
             try {
@@ -106,6 +106,10 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
                         main.post(this::updateOverlayState);
                     }
                 });
+            } catch (Throwable ignored) {}
+
+            try {
+                this.host.status("Ready. Photo Moderator active.", false);
             } catch (Throwable ignored) {}
         }
 
@@ -133,7 +137,7 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
 
     @Override
     public void onEvent(String event, Map<String, Object> payload) throws Exception {
-        if ("screensaver".equals(event)) {
+        if ("ks.screensaver.state".equals(event) || "screensaver.state".equals(event)) {
             if (payload != null && payload.containsKey("active")) {
                 kioskScreensaverActive = Boolean.TRUE.equals(payload.get("active"));
                 main.post(this::updateOverlayState);
@@ -144,6 +148,10 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
     @Override
     public void stop() throws Exception {
         main.removeCallbacksAndMessages(null);
+        if (host != null) {
+            try { host.unsubscribe("screensaver.state"); } catch (Throwable ignored) {}
+            try { host.unsubscribe("screensaver.view"); } catch (Throwable ignored) {}
+        }
         if (dreamReceiver != null && context != null) {
             try { context.unregisterReceiver(dreamReceiver); } catch (Throwable ignored) {}
             dreamReceiver = null;
