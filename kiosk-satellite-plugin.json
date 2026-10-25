@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": 1,
+  "id": "photo-moderator",
+  "name": "Photo Moderator",
+  "version": "0.1.0",
+  "minAndroidSdk": 26,
+  "entryClass": "me.jxl.kiosk.plugins.photomoderator.PhotoModeratorPlugin",
+  "description": "Floating photo moderation overlay for screensavers with instant nudity flagging, stranger reporting, and recent photo history without leaving screensaver.",
+  "author": "mortalone",
+  "license": "MIT",
+  "capabilities": [
+    "overlay",
+    "host.read"
+  ],
+  "settings": [
+    {
+      "key": "curatorUrl",
+      "type": "string",
+      "title": "Curator server URL",
+      "default": "http://192.168.0.96:8095",
+      "group": "Backend",
+      "description": "Base URL of Family Photo Curator (e.g. http://192.168.0.96:8095)."
+    },
+    {
+      "key": "overlayTarget",
+      "type": "select",
+      "title": "Show overlay on",
+      "default": "Screensaver only",
+      "options": [
+        "Screensaver only",
+        "Screensaver + Fotoo",
+        "Always (Screensaver + Dashboards)"
+      ],
+      "group": "Display",
+      "description": "Choose where the floating moderation button is displayed."
+    },
+    {
+      "key": "buttonPosition",
+      "type": "select",
+      "title": "Button position",
+      "default": "Top right",
+      "options": [
+        "Top right",
+        "Top left",
+        "Bottom right",
+        "Bottom left"
+      ],
+      "group": "Floating Button",
+      "description": "Screen corner where the floating moderation button is placed."
+    },
+    {
+      "key": "buttonSize",
+      "type": "select",
+      "title": "Button size",
+      "default": "Medium (48 dp)",
+      "options": [
+        "Small (36 dp)",
+        "Medium (48 dp)",
+        "Large (60 dp)"
+      ],
+      "group": "Floating Button",
+      "description": "Physical touch size of the floating moderation button."
+    },
+    {
+      "key": "buttonIcon",
+      "type": "select",
+      "title": "Button icon",
+      "default": "Shield (🛡️)",
+      "options": [
+        "Shield (🛡️)",
+        "Warning (⚠️)",
+        "Flag (🚩)",
+        "Eye (👁️)"
+      ],
+      "group": "Floating Button",
+      "description": "Single icon shown inside the button without extra text."
+    },
+    {
+      "key": "buttonOpacity",
+      "type": "number",
+      "title": "Button opacity",
+      "default": 70,
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "group": "Floating Button",
+      "description": "Idle opacity of the floating button on the screensaver."
+    },
+    {
+      "key": "buttonOffsetX",
+      "type": "number",
+      "title": "Horizontal offset",
+      "default": 16,
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "dp",
+      "group": "Floating Button",
+      "description": "Horizontal spacing from the selected screen corner."
+    },
+    {
+      "key": "buttonOffsetY",
+      "type": "number",
+      "title": "Vertical offset",
+      "default": 16,
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "dp",
+      "group": "Floating Button",
+      "description": "Vertical spacing from the selected screen corner."
+    },
+    {
+      "key": "autoDismissSeconds",
+      "type": "number",
+      "title": "Dialog auto-close timer",
+      "default": 45,
+      "min": 10,
+      "max": 180,
+      "step": 5,
+      "unit": "s",
+      "group": "Dialog",
+      "description": "Closes the moderation dialog automatically after this many seconds of inactivity."
+    }
+  ],
+  "commands": [
+    {
+      "id": "showModeratorDialog",
+      "title": "Open Photo Moderator Dialog"
+    },
+    {
+      "id": "hideModeratorDialog",
+      "title": "Close Photo Moderator Dialog"
+    },
+    {
+      "id": "reportCurrentNsfw",
+      "title": "Report recent photo as Nudity"
+    },
+    {
+      "id": "reportCurrentStranger",
+      "title": "Report recent photo as Stranger"
+    }
+  ],
+  "groups": [
+    {
+      "title": "Backend"
+    },
+    {
+      "title": "Display"
+    },
+    {
+      "title": "Floating Button"
+    },
+    {
+      "title": "Dialog"
+    }
+  ]
+}

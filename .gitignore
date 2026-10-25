@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+.idea/
+*.iml
+.gradle/
+build/
+bin/
