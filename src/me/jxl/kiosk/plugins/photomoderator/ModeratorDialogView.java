@@ -32,6 +32,7 @@ public final class ModeratorDialogView extends FrameLayout {
         void onReportStranger(PhotoItem photo);
         void onBlacklist(PhotoItem photo);
         void onPostponeScreensaver();
+        void onPhotoChanged(PhotoItem photo);
     }
 
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -224,7 +225,7 @@ public final class ModeratorDialogView extends FrameLayout {
         prevButton = createButton(ctx, "◀ Forrige", 0xFF1E293B, Color.WHITE, dp(9));
         prevButton.setOnClickListener(v -> {
             resetAutoDismiss();
-            stepPhoto(-1);
+            stepToEarlierPhoto();
         });
         navRow.addView(prevButton, new LinearLayout.LayoutParams(dp(110), dp(38)));
 
@@ -238,7 +239,7 @@ public final class ModeratorDialogView extends FrameLayout {
         nextButton = createButton(ctx, "Næste ▶", 0xFF1E293B, Color.WHITE, dp(9));
         nextButton.setOnClickListener(v -> {
             resetAutoDismiss();
-            stepPhoto(1);
+            stepToLaterPhoto();
         });
         navRow.addView(nextButton, new LinearLayout.LayoutParams(dp(110), dp(38)));
         cardLayout.addView(navRow, navLp);
@@ -345,6 +346,9 @@ public final class ModeratorDialogView extends FrameLayout {
         if (list != null) photos.addAll(list);
         currentIndex = 0;
         updateDisplay();
+        if (listener != null) {
+            listener.onPhotoChanged(getCurrentPhoto());
+        }
     }
 
     public PhotoItem getCurrentPhoto() {
@@ -352,12 +356,41 @@ public final class ModeratorDialogView extends FrameLayout {
         return photos.get(currentIndex);
     }
 
-    public void stepPhoto(int delta) {
+    /**
+     * "◀ Forrige" button: Step back in time to photos displayed earlier in history.
+     * Index 0 is the current photo on screen; earlier photos have index 1, 2, ...
+     */
+    public void stepToEarlierPhoto() {
         if (photos.isEmpty()) return;
-        int next = currentIndex + delta;
-        if (next >= 0 && next < photos.size()) {
-            currentIndex = next;
+        if (currentIndex < photos.size() - 1) {
+            currentIndex++;
             updateDisplay();
+            if (listener != null) {
+                listener.onPhotoChanged(getCurrentPhoto());
+            }
+        }
+    }
+
+    /**
+     * "Næste ▶" button: Step forward in time back towards the active photo on screen.
+     * Decrements index towards 0.
+     */
+    public void stepToLaterPhoto() {
+        if (photos.isEmpty()) return;
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateDisplay();
+            if (listener != null) {
+                listener.onPhotoChanged(getCurrentPhoto());
+            }
+        }
+    }
+
+    public void stepPhoto(int delta) {
+        if (delta > 0) {
+            stepToEarlierPhoto();
+        } else if (delta < 0) {
+            stepToLaterPhoto();
         }
     }
 
@@ -409,24 +442,44 @@ public final class ModeratorDialogView extends FrameLayout {
             subjectsText.setText("—");
             indexCounterText.setText("0 / 0");
             prevButton.setEnabled(false);
+            prevButton.setAlpha(0.35f);
             nextButton.setEnabled(false);
+            nextButton.setAlpha(0.35f);
             thumbImageView.setImageDrawable(null);
             thumbProgressBar.setVisibility(View.GONE);
             return;
         }
 
         PhotoItem photo = photos.get(currentIndex);
-        subtitleText.setText("Billede vist på pauseskærmen. Vælg handling nedenfor:");
+
+        // Header & info depending on whether this is the current active photo or earlier history
+        if (currentIndex == 0) {
+            indexCounterText.setText("🟢 Aktuelt (1 af " + photos.size() + ")");
+            subtitleText.setText("Billedet der vises på pauseskærmen lige nu:");
+            if (photo.shownAgoSeconds <= 5) {
+                shownAgoText.setText("⏱️ Vises lige nu");
+            } else {
+                shownAgoText.setText("⏱️ Vist: " + formatAgo(photo.shownAgoSeconds));
+            }
+        } else {
+            indexCounterText.setText("◀ " + currentIndex + " forrige (" + (currentIndex + 1) + " af " + photos.size() + ")");
+            subtitleText.setText("Tidligere vist billede (" + currentIndex + " foto tilbage):");
+            shownAgoText.setText("⏱️ Vist: " + formatAgo(photo.shownAgoSeconds));
+        }
+
         fileNameText.setText(photo.fileName);
         takenAtText.setText("📅 Taget: " + (photo.takenAt.isEmpty() ? "Ukendt" : photo.takenAt));
-        shownAgoText.setText("⏱️ Vist: " + formatAgo(photo.shownAgoSeconds));
         subjectsText.setText("👤 " + photo.subjectsString());
 
-        indexCounterText.setText((currentIndex + 1) + " / " + photos.size());
-        prevButton.setEnabled(currentIndex > 0);
-        prevButton.setAlpha(currentIndex > 0 ? 1.0f : 0.4f);
-        nextButton.setEnabled(currentIndex < photos.size() - 1);
-        nextButton.setAlpha(currentIndex < photos.size() - 1 ? 1.0f : 0.4f);
+        // "◀ Forrige" goes back into history (increments index). Enabled if not at oldest photo.
+        boolean canGoEarlier = currentIndex < photos.size() - 1;
+        prevButton.setEnabled(canGoEarlier);
+        prevButton.setAlpha(canGoEarlier ? 1.0f : 0.35f);
+
+        // "Næste ▶" goes forward towards current photo (decrements index). Enabled if not at index 0.
+        boolean canGoLater = currentIndex > 0;
+        nextButton.setEnabled(canGoLater);
+        nextButton.setAlpha(canGoLater ? 1.0f : 0.35f);
 
         thumbImageView.setImageDrawable(null);
         thumbProgressBar.setVisibility(View.VISIBLE);

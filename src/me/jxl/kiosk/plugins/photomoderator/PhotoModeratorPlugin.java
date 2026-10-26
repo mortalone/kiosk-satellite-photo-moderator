@@ -302,6 +302,11 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
             public void onPostponeScreensaver() {
                 postponeScreensaver();
             }
+
+            @Override
+            public void onPhotoChanged(PhotoItem photo) {
+                loadCurrentThumbnail();
+            }
         });
 
         addOverlayView(dialogView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,

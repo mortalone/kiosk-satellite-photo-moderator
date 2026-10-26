@@ -1,5 +1,14 @@
 # Release Notes
 
+## 0.2.0 - Active Photo Focus & Natural History Navigation
+
+- **Instant Active Photo Focus**: When opening moderation, the dialog immediately presents the photo currently showing on the screensaver with a green badge (`🟢 Aktuelt (1 af N)`) and timestamp (`⏱️ Vises lige nu`).
+- **Natural History Navigation ("◀ Forrige" / "Næste ▶")**:
+  - `◀ Forrige` is now enabled right away and steps back in time to photos shown before this one.
+  - `Næste ▶` steps forward in time towards the active photo and is disabled on index 0.
+  - Clear descriptive counters: `🟢 Aktuelt (1 af 60)`, `◀ 1 forrige (2 af 60)`, `◀ 2 forrige (3 af 60)`.
+- **Thumbnail Auto-Reload**: When stepping between photos in history, thumbnails and details update immediately and are cached in memory for fluid browsing.
+
 ## 0.1.1 - Event Subscription Fix
 
 - **Fix "Unknown KS event"**: Updated screensaver event subscription from legacy `screensaver` to standard Kiosk Satellite events `screensaver.state` and `screensaver.view`.

@@ -3,7 +3,7 @@
   "apiVersion": 1,
   "id": "photo-moderator",
   "name": "Photo Moderator",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "minAndroidSdk": 26,
   "entryClass": "me.jxl.kiosk.plugins.photomoderator.PhotoModeratorPlugin",
   "description": "Floating photo moderation overlay for screensavers with instant nudity flagging, stranger reporting, and recent photo history without leaving screensaver.",
