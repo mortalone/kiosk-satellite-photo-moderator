@@ -258,16 +258,47 @@ public final class PhotoModeratorPlugin implements KioskPlugin {
             return;
         }
 
+        // A previous plugin instance (reload, update, KS restart) may have left its
+        // button mounted in the activity or as an overlay window. Remove it first,
+        // otherwise the user sees two shields.
+        removeStaleButton();
+
         floatingButton = new FloatingButtonView(context);
         floatingButton.configure(buttonIcon, buttonOpacity);
         floatingButton.setListener(this::openModeratorDialog);
 
-        addOverlayView(floatingButton, sizePx, sizePx, grav, offX, offY, true);
+        if (addOverlayView(floatingButton, sizePx, sizePx, grav, offX, offY, true)) {
+            lastMountedButton = floatingButton;
+        }
+    }
+
+    /** The button most recently mounted by any instance of this plugin in this process. */
+    private static volatile View lastMountedButton;
+
+    private void removeStaleButton() {
+        View stale = lastMountedButton;
+        lastMountedButton = null;
+        if (stale != null && stale != floatingButton) removeOverlayView(stale);
+        // Also sweep the activity content for orphaned buttons of earlier instances.
+        try {
+            Activity activity = activeKioskActivity();
+            if (activity == null) return;
+            View content = activity.findViewById(android.R.id.content);
+            if (!(content instanceof ViewGroup)) return;
+            ViewGroup root = (ViewGroup) content;
+            for (int i = root.getChildCount() - 1; i >= 0; i--) {
+                View child = root.getChildAt(i);
+                if (child != floatingButton && child.getClass().getName().equals(FloatingButtonView.class.getName())) {
+                    root.removeViewAt(i);
+                }
+            }
+        } catch (Throwable ignored) {}
     }
 
     private void removeFloatingButton() {
         if (floatingButton != null) {
             removeOverlayView(floatingButton);
+            if (lastMountedButton == floatingButton) lastMountedButton = null;
             floatingButton = null;
         }
     }
